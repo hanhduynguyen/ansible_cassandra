@@ -1,0 +1,22 @@
+cluster_name: 'MyCassandraCluster'
+num_tokens: 256
+
+seed_provider:
+  - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+    parameters:
+      - seeds: "IP_ADDRESS_NODE1,IP_ADDRESS_NODE2,IP_ADDRESS_NODE3"
+
+listen_address: IP_ADDRESS_CURRENT_NODE
+rpc_address: 0.0.0.0
+
+endpoint_snitch: GossipingPropertyFileSnitch
+
+# Increase the following values to match your hardware resources
+# Adjust the heap sizes and concurrency settings based on your cluster's requirements
+jvm_options:
+  initial_heap_size: "512M"
+  max_heap_size: "1G"
+
+concurrent_reads: 32
+concurrent_writes: 32
+concurrent_counter_writes: 32

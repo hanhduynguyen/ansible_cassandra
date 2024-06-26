@@ -1,0 +1,20 @@
+---
+# tasks file for cassandra
+#  vars_files:
+#     - /vars/external_vars.yml
+
+
+- name: display pre installation of setting up Cassandra Database Software requirements into the Linux OS
+  debug:
+    msg:
+      - 'This playbook is for setting setting up Oracle Database Software requirement {{ansible_date_time.iso8601}}:'
+
+
+- name: Preparation tasks for hosting Cassandra database
+  block:
+    #- import_tasks: install_cassandra_cluster.yml
+    - import_tasks: CassandraCluster_tarball.yml
+  #  - import_tasks:  install_opscenter.yml
+    
+  become:               yes
+  become_user:          root

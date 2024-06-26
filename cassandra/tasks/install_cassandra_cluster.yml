@@ -1,0 +1,58 @@
+---
+- name: Install and Configure Cassandra Cluster
+  hosts: cassandra
+  user: root
+  become: yes
+  tasks:
+    - name: Update the system
+      dnf:
+        name: "*"
+        state: latest
+      when: ansible_facts['os_family'] == 'RedHat'
+
+    - name: Install Java
+      dnf:
+        name: java-11-openjdk
+        state: present
+      when: ansible_facts['os_family'] == 'RedHat'
+
+    - name: Add Cassandra Repository
+      dnf:
+        name: https://www.apache.org/dist/cassandra/redhat/311x/cassandra-3.11.10-1.noarch.rpm
+        state: present
+      when: ansible_facts['os_family'] == 'RedHat'
+
+    - name: Install Cassandra
+      dnf:
+        name: cassandra
+        state: present
+      when: ansible_facts['os_family'] == 'RedHat'
+
+    - name: Start and enable Cassandra service
+      systemd:
+        name: cassandra
+        enabled: yes
+        state: started
+
+- name: Configure Cassandra Cluster
+  hosts: cassandra
+  tasks:
+    - name: Wait for Cassandra to start
+      uri:
+        url: http://127.0.0.1:9042/
+      register: cassandra_status
+      retries: 30
+      delay: 10
+      until: cassandra_status.status == 200
+
+    - name: Configure Cassandra
+      template:
+        src: templates/cassandra.yaml.j2
+        dest: /etc/cassandra/cassandra.yaml
+      notify: Restart Cassandra
+
+  handlers:
+    - name: Restart Cassandra
+      systemd:
+        name: cassandra
+        state: restarted
